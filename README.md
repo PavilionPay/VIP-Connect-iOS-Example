@@ -14,8 +14,13 @@ After getting a session id, [launch the VIP SDK web component via URL](https://d
 an [`ASWebAuthenticationSession`](https://developer.apple.com/documentation/authenticationservices/aswebauthenticationsession). The `SessionSetupViewController`
 class in this demo app demonstrates a simple way to do this.
 
+The sample runs the `ASWebAuthenticationSession` in private (incognito) mode by setting
+[`prefersEphemeralWebBrowserSession`](https://developer.apple.com/documentation/authenticationservices/aswebauthenticationsession/prefersephemeralwebbrowsersession)
+to `true`. The session shares no cookies or website data with Safari or with earlier sessions, and iOS does not show its
+"Wants to Use ... to Sign In" prompt before each transaction.
+
 VIP Connect uses [Finicity Connect WebSDK](https://developer.mastercard.com/open-finance-us/documentation/connect/integrating/sdk/web-sdk/sdk/) or [Plaid Hosted Link](https://plaid.com/docs/link/hosted-link/) to securely connect your customer's bank accounts with VIP Connect; launching
-the VIP Connect SDK inside an `ASWebAuthenticationSession` is necessary to provide the best experience to your customers. 
+the VIP Connect SDK inside an `ASWebAuthenticationSession` (in private mode, as described above) is necessary to provide the best experience to your customers. 
 
 ## Returning to the app from VIP Connect
 
@@ -52,10 +57,11 @@ operator's values before it can run.
    bundle identifier is not available, change it to one of your own. A simulator needs neither change.
 4. If you are not using the built-in test patron, replace its values in `OperatorServer.swift` (see [The test patron](#the-test-patron)).
 5. Choose the `iGamingDemo` scheme and your iPhone or simulator, then run the app.
-6. On the home screen, turn **Private session (incognito)** on or off (see [Private sessions](#private-sessions)), then tap
-   **Launch VIP Connect SDK**. With the switch off, iOS asks for permission to sign in; tap **Continue**.
+6. On the home screen, tap **Launch VIP Connect SDK**. VIP Connect opens in an `ASWebAuthenticationSession` running in private (incognito)
+   mode, so iOS does not ask for permission to sign in.
 7. Complete or cancel the transaction in VIP Connect. When VIP Connect navigates to `closevip://done`, the session closes by itself and you are
-   back in the sample app.
+   back in the sample app, which prints "VIP Connect session ended" to the Xcode console. VIP Connect uses the same `returnURL` after a finished
+   transaction and after a cancelled one, so this does not by itself mean a transaction was made.
 
 ### If it doesn't start
 
@@ -81,15 +87,6 @@ patron of your own. The sample does not enroll new patrons.
 
 The same function sets the rest of the request: a 10.00 deposit, a new `transactionID` for every session, `productType` `0` and the `returnURL`
 `closevip://done`.
-
-### Private sessions
-
-The **Private session (incognito)** switch sets
-[`prefersEphemeralWebBrowserSession`](https://developer.apple.com/documentation/authenticationservices/aswebauthenticationsession/prefersephemeralwebbrowsersession)
-on the `ASWebAuthenticationSession`.
-
-- **Off (default):** the session shares cookies and website data with Safari, and iOS shows a prompt asking permission to sign in.
-- **On:** the session starts with no cookies and keeps none afterwards, and iOS shows no prompt.
 
 ### Not for production
 
