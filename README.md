@@ -22,6 +22,19 @@ to `true`. The session shares no cookies or website data with Safari or with ear
 VIP Connect uses [Finicity Connect WebSDK](https://developer.mastercard.com/open-finance-us/documentation/connect/integrating/sdk/web-sdk/sdk/) or [Plaid Hosted Link](https://plaid.com/docs/link/hosted-link/) to securely connect your customer's bank accounts with VIP Connect; launching
 the VIP Connect SDK inside an `ASWebAuthenticationSession` (in private mode, as described above) is necessary to provide the best experience to your customers. 
 
+### WebViews are not supported
+
+Do not host VIP Connect in an embedded WebView (`WKWebView`). It is not supported for native iOS apps. When a patron adds a bank account, they sign
+in at their bank through OAuth, and that sign-in must not run inside an embedded WebView:
+
+- **Finicity (Mastercard Data Connect):** Mastercard's [integration guide](https://developer.mastercard.com/open-finance-us/documentation/connect/integrating/non-sdk/non-sdk-ios/) says the bank's OAuth session must open in a secure container
+  "as we don't support WebViews for OAuth process".
+- **Plaid:** Plaid's [WebView page](https://plaid.com/docs/link/webview/) says "Using webviews to present Link is deprecated", and its
+  [changelog](https://plaid.com/docs/changelog/) says WebView-based integrations are no longer allowed for new Plaid customers (April 2025).
+- **Banks restrict it.** Both providers name Chase as a bank that restricts sign-in from WebViews.
+
+An `ASWebAuthenticationSession` is a secure browser session, not an embedded WebView, so bank sign-in works in it.
+
 ## Returning to the app from VIP Connect
 
 Upon completion or cancellation, VIP Connect will navigate to the address at the `returnURL` param passed during [session creation](https://developer.vippreferred.com/APIS/SDK/create-patron-session).
