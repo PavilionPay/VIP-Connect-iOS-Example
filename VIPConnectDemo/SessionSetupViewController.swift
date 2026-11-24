@@ -13,29 +13,9 @@ class SessionSetupViewController: UIViewController {
     @IBOutlet private var activityIndicator: UIActivityIndicatorView!
     @IBOutlet private var launchButton: UIButton!
     
-    /// When on, the session is private (ephemeral): it shares no cookies or website data with Safari or with
-    /// earlier sessions, and iOS does not show the "Wants to Use ... to Sign In" prompt.
-    private let privateSessionSwitch = UISwitch()
-    
     override func viewDidLoad() {
         super.viewDidLoad()
         navigationController?.isNavigationBarHidden = true
-        addSessionOptions()
-    }
-    
-    /// Adds the private-session switch above the launch button.
-    private func addSessionOptions() {
-        let switchLabel = UILabel()
-        switchLabel.text = "Private session (incognito)"
-        let options = UIStackView(arrangedSubviews: [switchLabel, privateSessionSwitch])
-        options.spacing = 12
-        options.translatesAutoresizingMaskIntoConstraints = false
-        view.addSubview(options)
-        NSLayoutConstraint.activate([
-            options.centerXAnchor.constraint(equalTo: view.safeAreaLayoutGuide.centerXAnchor),
-            options.bottomAnchor.constraint(equalTo: launchButton.topAnchor, constant: -40),
-            options.leadingAnchor.constraint(greaterThanOrEqualTo: view.safeAreaLayoutGuide.leadingAnchor, constant: 20)
-        ])
     }
     
     override func viewDidAppear(_ animated: Bool) {
@@ -75,9 +55,12 @@ class SessionSetupViewController: UIViewController {
                         print("Successful transaction")
                     }
                 }
-                // A private (ephemeral) session starts with no cookies and keeps none afterwards, and skips the
-                // system sign-in prompt. Leave it off to share cookies and website data with Safari.
-                vc.prefersEphemeralWebBrowserSession = privateSessionSwitch.isOn
+                // Run the session in private (incognito) mode. An ephemeral session shares no cookies or website
+                // data with Safari or with earlier sessions, so every patron starts from a clean browser and nothing
+                // from VIP Connect or the bank sign-in is left behind when the session ends. It also removes the
+                // system "Wants to Use ... to Sign In" prompt, which would otherwise appear before every transaction.
+                // Returning from a bank's own app (app-to-app) and closing on the return URL work the same way.
+                vc.prefersEphemeralWebBrowserSession = true
                 vc.presentationContextProvider = self
                 vc.start()
             } catch {
