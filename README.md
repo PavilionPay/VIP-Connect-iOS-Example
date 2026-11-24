@@ -6,11 +6,11 @@ More instructions about the VIP Connect SDK can be found in our [main documentat
 
 ## Integration Requirements
 
-To interact with the VIP Connect services, first setup an [operator](https://developer.vippreferred.com/operator-onboarding/operator-setup) with Pavilion Payments.
-This will allow you to create an [authentication token](https://developer.vippreferred.com/integration-steps/operator-requirements) for use with the Pavilion APIs
-to [create a patron session](https://developer.vippreferred.com/APIS/SDK/create-patron-session) for your customer. 
+To interact with the VIP Connect services, first setup an [operator](https://developer.vippreferred.com/Onboarding/operator-setup) with Pavilion Payments.
+This will allow you to create an [authentication token](https://developer.vippreferred.com/Onboarding/generate-jwt) for use with the Pavilion APIs
+to [create a patron session](https://developer.vippreferred.com/Resources/API%20Library/patron-session-existing) for your customer. 
 
-After getting a session id, [launch the VIP SDK web component via URL](https://developer.vippreferred.com/integration-steps/invoke-web-component) inside
+After getting a session id, [launch the VIP SDK web component via URL](https://developer.vippreferred.com/Guides/invoke-web-component) inside
 an [`ASWebAuthenticationSession`](https://developer.apple.com/documentation/authenticationservices/aswebauthenticationsession). The `SessionSetupViewController`
 class in this demo app demonstrates a simple way to do this.
 
@@ -37,7 +37,7 @@ An `ASWebAuthenticationSession` is a secure browser session, not an embedded Web
 
 ## Returning to the app from VIP Connect
 
-Upon completion or cancellation, VIP Connect will navigate to the address at the `returnURL` param passed during [session creation](https://developer.vippreferred.com/APIS/SDK/create-patron-session).
+Upon completion or cancellation, VIP Connect will navigate to the address at the `returnURL` param passed during [session creation](https://developer.vippreferred.com/Resources/API%20Library/patron-session-existing).
 The sample app uses `closevip://done` as an example `returnURL`, which your app may use or modify as needed. 
 
 The scheme of the `returnURL` must be the same in both of these places. If they differ, the session will not close by itself.
@@ -78,7 +78,7 @@ operator's values before it can run.
 
 - A Mac with Xcode, and an iPhone or an iOS simulator running iOS 16.4 or later.
 - An Apple developer account, if you run on an iPhone.
-- From [operator setup](https://developer.vippreferred.com/operator-onboarding/operator-setup): your operator's **JWT Secret** and **JWT Issuer**,
+- From [operator setup](https://developer.vippreferred.com/Onboarding/operator-setup): your operator's **JWT Secret** and **JWT Issuer**,
   and the name of the test environment your operator is in (such as `cert`). Please contact your Pavilion Payments representative if you need help
   obtaining these values.
 - A test patron that exists for your operator (see [The test patron](#the-test-patron)).
@@ -123,7 +123,7 @@ The sample creates a session for one fixed, existing patron. The values are in `
 | `vipCardNumber` | `7210806973` |
 | `dateOfBirth` | `04/15/1980` |
 
-The session is created with [`patronsession/existing`](https://developer.vippreferred.com/APIS/SDK/create-patron-session), so the patron must
+The session is created with [`patronsession/existing`](https://developer.vippreferred.com/Resources/API%20Library/patron-session-existing), so the patron must
 already exist for your operator in the environment you chose. If this patron does not exist for your operator, replace the three values with a
 patron of your own. The sample does not enroll new patrons.
 
