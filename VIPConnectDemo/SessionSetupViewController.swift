@@ -51,8 +51,10 @@ class SessionSetupViewController: UIViewController {
                     }
                     
                     if url?.absoluteString.contains("done") == true {
-                        // transaction completed successfully, and the session was automatically dismissed.
-                        print("Successful transaction")
+                        // VIP Connect navigated to the return url, and the session was automatically dismissed.
+                        // This happens after a finished transaction and also after the patron cancels in VIP Connect
+                        // and taps "Continue", so it does not by itself mean a transaction was made.
+                        print("VIP Connect session ended")
                     }
                 }
                 // Run the session in private (incognito) mode. An ephemeral session shares no cookies or website

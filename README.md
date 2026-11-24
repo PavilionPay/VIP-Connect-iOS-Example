@@ -60,7 +60,8 @@ operator's values before it can run.
 6. On the home screen, tap **Launch VIP Connect SDK**. VIP Connect opens in an `ASWebAuthenticationSession` running in private (incognito)
    mode, so iOS does not ask for permission to sign in.
 7. Complete or cancel the transaction in VIP Connect. When VIP Connect navigates to `closevip://done`, the session closes by itself and you are
-   back in the sample app.
+   back in the sample app, which prints "VIP Connect session ended" to the Xcode console. VIP Connect uses the same `returnURL` after a finished
+   transaction and after a cancelled one, so this does not by itself mean a transaction was made.
 
 ### If it doesn't start
 
