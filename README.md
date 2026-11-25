@@ -47,8 +47,62 @@ The scheme of the `returnURL` must be the same in both of these places. If they 
 | The `returnURL` field of the create-session request | `returnURL: "closevip://done"` in `OperatorServer.swift` |
 | The scheme given to the session | `callbackURLScheme: "closevip"` in `SessionSetupViewController.swift` |
 
-A custom scheme used with `ASWebAuthenticationSession` needs no URL type in `Info.plist` and no entitlement. You do not need Universal Links or an
-associated-domains file to run the sample.
+A custom scheme used with `ASWebAuthenticationSession` needs no URL type in `Info.plist` and no entitlement, and the sample runs without
+Universal Links or an associated-domains file.
+
+**A production app needs a Universal Link.** A patron can link an account at any bank, and some banks sign the patron in through the bank's
+own app. Your app has to be able to bring the patron back from that app, which takes a Universal Link: see
+[Returning from the patron's bank app](#returning-from-the-patrons-bank-app).
+
+## Returning from the patron's bank app
+
+Pavilion connects bank accounts through one of two providers, Finicity or Plaid. Your operator is configured for one of them, and your app
+does not need to know which. Each provider has its own parameter for the link that returns the patron from their bank's app:
+
+| Your operator uses | Parameter |
+|---|---|
+| Finicity | `finicityRedirectUrl` |
+| Plaid | `plaidRedirectUrl` |
+
+Pass the same Universal Link in both. VIP Connect uses the one that matches your operator and ignores the other, so the same build works
+whichever provider your operator is on, and keeps working if that changes.
+
+When a patron adds a bank account, the bank signs them in. Where that happens depends on the patron's phone, not on your app:
+
+| Patron's situation | What happens | What your app needs |
+|---|---|---|
+| The bank signs in on a web page (the bank has no app, or its app is not installed) | Sign-in happens inside the same browser session. The patron never leaves your app | Nothing more. The sample works as it is |
+| The bank's app is installed and the bank uses it for sign-in | iOS switches to the bank's app. After the patron approves, something has to bring them back to your app | A Universal Link that your app claims, passed to VIP Connect in both parameters |
+
+Without the link, the second case does not fail, but the patron is left in the bank's app after approving. The bank account is still linked,
+and VIP Connect carries on when the patron switches back to your app by hand. With the link, the bank's app returns them to your app
+automatically.
+
+You cannot choose to support only the first case: any patron whose bank has its own app can be in the second.
+
+The sample does not include this, because the link has to be on a domain you control. To add it to your app:
+
+1. **Choose a Universal Link** on your own domain, for example `https://www.example.com/vip-connect/bank-return`. The page does not need to exist.
+2. **List your app in your domain's association file.** Serve `https://www.example.com/.well-known/apple-app-site-association` with your app ID
+   (Team ID and bundle ID) and the path. See Apple's [Supporting associated domains](https://developer.apple.com/documentation/xcode/supporting-associated-domains).
+3. **Claim the domain in your app.** Add the Associated Domains capability with `applinks:www.example.com`.
+4. **Give the link to your Pavilion Payments representative.** Plaid only accepts links that have been registered with it, and Pavilion does
+   that registration. Finicity needs no registration.
+5. **Pass the link to VIP Connect in both parameters** when you build the url in `createPatronSessionUrl`:
+
+   ```swift
+   let bankReturn = "https://www.example.com/vip-connect/bank-return"
+   return URL(string: "\(baseUrl)?mode=\(transactionType)&plaidRedirectUrl=\(bankReturn)&finicityRedirectUrl=\(bankReturn)#\(sessionId)")!
+   ```
+
+Things to know:
+
+- **With Finicity, your app needs no code to handle the link.** When the bank's app opens it, iOS brings your app to the front and the
+  `ASWebAuthenticationSession` is still open where the patron left it. Do not close or restart the session when the link arrives.
+- **With Plaid, check the [main documentation](https://developer.vippreferred.com/Guides/native-integration-ios)** for what your app does when
+  the link arrives.
+- **Use a link that only one app claims.** If two installed apps claim the same path on the same domain, iOS opens only one of them, and it may
+  not be yours. This includes your own test and production builds: give each its own path.
 
 ## How a session ends
 
